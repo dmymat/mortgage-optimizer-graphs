@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Optimizer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #e2e8f0;
+  --muted: #94a3b8; --accent: #38bdf8; --green: #4ade80; --red: #f87171;
+  --orange: #fb923c; --purple: #a78bfa; --yellow: #fbbf24;
+  --input-bg: #0f172a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
+.container { max-width: 1100px; margin: 0 auto; }
+
+h1 { font-size: 1.6rem; color: var(--accent); margin-bottom: 4px; }
+.subtitle { color: var(--muted); margin-bottom: 20px; font-size: 0.9rem; }
+h2 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+/* ===== LANG SWITCHER ===== */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.lang-switch { display: flex; gap: 4px; }
+.lang-btn {
+  padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.82rem;
+  font-weight: 600; transition: all 0.15s;
+}
+.lang-btn:hover { border-color: var(--accent); color: var(--text); }
+.lang-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+/* ===== INPUT PANEL ===== */
+.input-panel {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; margin-bottom: 20px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+  align-items: flex-start; /* Виправлено вирівнювання інпутів */
+}
+.field {
+  display: flex;
+  flex-direction: column;
+}
+.field label {
+  display: block; font-size: 0.78rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-bottom: 6px;
+}
+.field input {
+  width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--input-bg); color: var(--text); font-size: 1.05rem; font-weight: 600;
+  font-family: 'SF Mono', Monaco, Consolas, monospace; transition: border-color 0.2s;
+}
+.field input:focus { outline: none; border-color: var(--accent); }
+.field .unit { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+.extra-section { grid-column: 1 / -1; }
+.extra-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.extra-btn {
+  padding: 8px 18px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.9rem;
+  transition: all 0.15s; white-space: nowrap;
+}
+.extra-btn:hover { border-color: var(--purple); color: var(--text); }
+.extra-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+.extra-input {
+  width: 140px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--input-bg); color: var(--text); font-size: 0.95rem; font-weight: 600;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+.extra-input:focus { outline: none; border-color: var(--accent); }
+.extra-label { font-size: 0.8rem; color: var(--muted); }
+
+/* ===== RESULT CARDS ===== */
+.kpi-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px; margin-bottom: 16px;
+}
+.kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+.kpi-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi-val { font-size: 1.35rem; font-weight: 700; margin-top: 2px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.card.best { border-color: var(--green); box-shadow: 0 0 16px rgba(74, 222, 128, 0.08); }
+.card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.card-title { font-size: 0.92rem; color: var(--muted); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
+.badge.green { background: var(--green); color: var(--bg); }
+.badge.orange { background: var(--orange); color: var(--bg); }
+.stat { margin-bottom: 6px; }
+.stat-label { font-size: 0.78rem; color: var(--muted); }
+.stat-value { font-size: 1.1rem; font-weight: 600; }
+.green { color: var(--green); }
+.red { color: var(--red); }
+
+/* ===== CHARTS ===== */
+.chart-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 320px; }
+
+.footer { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="top-bar">
+  <div>
+    <h1 id="title"></h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+  <div class="lang-switch">
+    <!-- Видалені емодзі для уникнення дублювання -->
+    <button class="lang-btn active" onclick="setLang('uk')">UA</button>
+    <button class="lang-btn" onclick="setLang('pl')">PL</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<!-- ===== INPUTS ===== -->
+<div class="input-panel">
+  <div class="field">
+    <label id="lbl_principal"></label>
+    <input type="text" id="inPrincipal" value="260000" inputmode="numeric">
+  </div>
+  <div class="field">
+    <label id="lbl_rate"></label>
+    <input type="text" id="inRate" value="7.19" inputmode="decimal">
+  </div>
+  <div class="field">
+    <label id="lbl_payments"></label>
+    <input type="text" id="inPayments" value="300" inputmode="numeric">
+    <div class="unit" id="yearsHint"></div>
+  </div>
+  <div class="extra-section">
+    <label id="lbl_extra" style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;display:block;"></label>
+    <div class="extra-row">
+      <button class="extra-btn" data-val="500">500</button>
+      <button class="extra-btn active" data-val="1000">1 000</button>
+      <button class="extra-btn" data-val="1500">1 500</button>
+      <button class="extra-btn" data-val="2000">2 000</button>
+      <span class="extra-label" id="lbl_or"></span>
+      <input type="text" class="extra-input" id="inExtra" value="1000" inputmode="numeric" placeholder="">
+    </div>
+  </div>
+</div>
+
+<div id="kpiRow" class="kpi-row"></div>
+
+<h2 id="h_strategies"></h2>
+<div id="stratCards" class="cards"></div>
+
+<h2 id="h_balance"></h2>
+<div class="chart-box"><div class="chart-wrap"><canvas id="chartBalance"></canvas></div></div>
+
+<h2 id="h_interest"></h2>
+<div class="chart-box"><div class="chart-wrap"><canvas id="chartInterest"></canvas></div></div>
+
+<h2 id="h_structure"></h2>
+<div class="chart-box"><div class="chart-wrap"><canvas id="chartPayment"></canvas></div></div>
+
+<div class="footer" id="footerText"></div>
+</div>
+
+<script>
+/* =========== i18n =========== */
+const i18n = {
+  uk: {
+    title: 'Калькулятор іпотеки',
+    subtitle: 'Порівняння стратегій дострокового погашення',
+    lbl_principal: 'Сума кредиту (PLN)',
+    lbl_rate: 'Річна ставка (%)',
+    lbl_payments: 'Кількість платежів',
+    lbl_extra: 'Додаткова виплата на місяць (PLN)',
+    lbl_or: 'або:',
+    placeholder: 'своя сума',
+    years: 'років',
+    h_strategies: 'Порівняння стратегій',
+    h_balance: 'Залишок кредиту',
+    h_interest: 'Накопичені відсотки',
+    h_structure: 'Структура платежу (зменшення к-ті)',
+    footer: 'Mortgage Optimizer · Розрахунки виконуються у браузері',
+    kpi_pay: 'Платіж без доплати',
+    kpi_int: 'Відсотки без доплати',
+    kpi_total: 'Платіж + доплата',
+    kpi_diff: 'Різниця стратегій',
+    card1_title: 'Зменшення к-ті платежів',
+    card1_badge: 'ОПТИМАЛЬНО',
+    card2_title: 'Зменшення розміру платежу',
+    card2_badge: 'ДОРОЖЧЕ',
+    card3_title: 'Зменш. к-ті виграє на',
+    s_interest: 'Відсотки',
+    s_savings: 'Економія',
+    s_term: 'Термін',
+    s_total: 'Загалом виплачено',
+    s_less_int: 'Менше відсотків',
+    s_faster: 'Швидше на',
+    s_less_total: 'Менше виплат загалом',
+    months: 'місяців',
+    mo: 'міс',
+    yr: 'р.',
+    ch_no_extra: 'Без доплати',
+    ch_reduce_n: 'Зменш. к-ті',
+    ch_reduce_p: 'Зменш. платежу',
+    ch_month: 'Місяць',
+    ch_balance: 'Залишок (PLN)',
+    ch_cum_int: 'Накопичені відсотки (PLN)',
+    ch_interest: 'Відсотки',
+    ch_principal: 'Тіло кредиту'
+  },
+  pl: {
+    title: 'Kalkulator hipoteczny',
+    subtitle: 'Porównanie strategii wcześniejszej spłaty',
+    lbl_principal: 'Kwota kredytu (PLN)',
+    lbl_rate: 'Oprocentowanie roczne (%)',
+    lbl_payments: 'Liczba rat',
+    lbl_extra: 'Dodatkowa wpłata miesięczna (PLN)',
+    lbl_or: 'lub:',
+    placeholder: 'własna kwota',
+    years: 'lat',
+    h_strategies: 'Porównanie strategii',
+    h_balance: 'Saldo kredytu',
+    h_interest: 'Skumulowane odsetki',
+    h_structure: 'Struktura raty (skrócenie okresu)',
+    footer: 'Mortgage Optimizer · Obliczenia wykonywane w przeglądarce',
+    kpi_pay: 'Rata bez nadpłaty',
+    kpi_int: 'Odsetki bez nadpłaty',
+    kpi_total: 'Rata + nadpłata',
+    kpi_diff: 'Różnica strategii',
+    card1_title: 'Skrócenie okresu spłaty',
+    card1_badge: 'OPTYMALNIE',
+    card2_title: 'Zmniejszenie raty',
+    card2_badge: 'DROŻEJ',
+    card3_title: 'Skrócenie wygrywa o',
+    s_interest: 'Odsetki',
+    s_savings: 'Oszczędność',
+    s_term: 'Okres spłaty',
+    s_total: 'Suma wpłat',
+    s_less_int: 'Mniej odsetek',
+    s_faster: 'Szybciej o',
+    s_less_total: 'Mniej wpłat łącznie',
+    months: 'miesięcy',
+    mo: 'mies.',
+    yr: 'l.',
+    ch_no_extra: 'Bez nadpłaty',
+    ch_reduce_n: 'Skrócenie okresu',
+    ch_reduce_p: 'Zmniejszenie raty',
+    ch_month: 'Miesiąc',
+    ch_balance: 'Saldo (PLN)',
+    ch_cum_int: 'Skumulowane odsetki (PLN)',
+    ch_interest: 'Odsetki',
+    ch_principal: 'Kapitał'
+  },
+  en: {
+    title: 'Mortgage Calculator',
+    subtitle: 'Prepayment strategy comparison',
+    lbl_principal: 'Loan amount (PLN)',
+    lbl_rate: 'Annual rate (%)',
+    lbl_payments: 'Number of payments',
+    lbl_extra: 'Monthly extra payment (PLN)',
+    lbl_or: 'or:',
+    placeholder: 'custom amount',
+    years: 'years',
+    h_strategies: 'Strategy comparison',
+    h_balance: 'Remaining balance',
+    h_interest: 'Cumulative interest',
+    h_structure: 'Payment structure (term reduction)',
+    footer: 'Mortgage Optimizer · Calculations run in your browser',
+    kpi_pay: 'Payment w/o extra',
+    kpi_int: 'Interest w/o extra',
+    kpi_total: 'Payment + extra',
+    kpi_diff: 'Strategy difference',
+    card1_title: 'Reduce number of payments',
+    card1_badge: 'OPTIMAL',
+    card2_title: 'Reduce payment amount',
+    card2_badge: 'COSTLIER',
+    card3_title: 'Term reduction wins by',
+    s_interest: 'Interest',
+    s_savings: 'Savings',
+    s_term: 'Payoff term',
+    s_total: 'Total paid',
+    s_less_int: 'Less interest',
+    s_faster: 'Faster by',
+    s_less_total: 'Less total payments',
+    months: 'months',
+    mo: 'mo',
+    yr: 'yr',
+    ch_no_extra: 'No extra',
+    ch_reduce_n: 'Reduce term',
+    ch_reduce_p: 'Reduce payment',
+    ch_month: 'Month',
+    ch_balance: 'Balance (PLN)',
+    ch_cum_int: 'Cumulative interest (PLN)',
+    ch_interest: 'Interest',
+    ch_principal: 'Principal'
+  }
+};
+
+let lang = 'uk';
+function t(key) { return i18n[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
+  document.documentElement.lang = l;
+  applyLabels();
+  render();
+}
+
+function applyLabels() {
+  document.getElementById('title').textContent = t('title');
+  document.getElementById('subtitle').textContent = t('subtitle');
+  document.getElementById('lbl_principal').textContent = t('lbl_principal');
+  document.getElementById('lbl_rate').textContent = t('lbl_rate');
+  document.getElementById('lbl_payments').textContent = t('lbl_payments');
+  document.getElementById('lbl_extra').textContent = t('lbl_extra');
+  document.getElementById('lbl_or').textContent = t('lbl_or');
+  document.getElementById('inExtra').placeholder = t('placeholder');
+  document.getElementById('h_strategies').textContent = t('h_strategies');
+  document.getElementById('h_balance').textContent = t('h_balance');
+  document.getElementById('h_interest').textContent = t('h_interest');
+  document.getElementById('h_structure').textContent = t('h_structure');
+  document.getElementById('footerText').textContent = t('footer');
+}
+
+/* =========== ENGINE =========== */
+function annuity(P, rA, n) {
+  const r = rA / 12;
+  return r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+}
+
+function sim(P, rA, N, extra, strategy) {
+  const r = rA / 12;
+  let bal = P, pay = annuity(P, rA, N), totI = 0, totP = 0, m = 0;
+  const hist = [];
+  while (bal > 0.01 && m < 800) {
+    m++;
+    const interest = bal * r;
+    let sched = Math.min(pay, bal + interest);
+    let princ = Math.max(0, sched - interest);
+    if (princ < 0) { princ = 0; sched = interest; }
+    let ex = Math.min(extra, bal - princ);
+    if (ex < 0) ex = 0;
+    let tp = princ + ex;
+    bal -= tp;
+    if (bal < 0) { ex += bal; tp += bal; bal = 0; }
+    totI += interest; totP += sched + ex;
+    hist.push({ m, pay: sched + ex, interest, principal: tp, bal });
+    if (bal > 0 && ex > 0 && strategy === 'pay') {
+      const rem = N - m;
+      if (rem > 0) pay = annuity(bal, rA, rem);
+    }
+  }
+  return { totI, totP, months: m, years: +(m / 12).toFixed(1), hist };
+}
+
+/* =========== STATE =========== */
+let charts = {};
+
+function fmt(n) { return Math.round(n).toLocaleString('pl-PL'); }
+function fmt2(n) { return n.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function getInputs() {
+  const P = parseFloat(document.getElementById('inPrincipal').value.replace(/\s/g, '')) || 0;
+  const rA = (parseFloat(document.getElementById('inRate').value.replace(',', '.')) || 0) / 100;
+  const N = parseInt(document.getElementById('inPayments').value) || 1;
+  const extra = parseFloat(document.getElementById('inExtra').value.replace(/\s/g, '')) || 0;
+  return { P, rA, N, extra };
+}
+
+function render() {
+  const { P, rA, N, extra } = getInputs();
+  if (P <= 0 || rA <= 0 || N <= 0) return;
+
+  const monthlyPay = annuity(P, rA, N);
+  document.getElementById('yearsHint').textContent = (N / 12).toFixed(1) + ' ' + t('years');
+
+  const base = sim(P, rA, N, 0, 'term');
+  const sTerm = sim(P, rA, N, extra, 'term');
+  const sPay = sim(P, rA, N, extra, 'pay');
+
+  const savTerm = base.totI - sTerm.totI;
+  const savPay = base.totI - sPay.totI;
+  const diff = sPay.totI - sTerm.totI;
+
+  /* KPI */
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi"><div class="kpi-label">${t('kpi_pay')}</div><div class="kpi-val">${fmt2(monthlyPay)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_int')}</div><div class="kpi-val red">${fmt(base.totI)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_total')}</div><div class="kpi-val" style="color:var(--accent)">${fmt2(monthlyPay + extra)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_diff')}</div><div class="kpi-val green">${fmt(diff)} PLN</div></div>
+  `;
+
+  /* Cards */
+  document.getElementById('stratCards').innerHTML = `
+    <div class="card best">
+      <div class="card-head"><span class="card-title">${t('card1_title')}</span><span class="badge green">${t('card1_badge')}</span></div>
+      <div class="stat"><div class="stat-label">${t('s_interest')}</div><div class="stat-value green">${fmt(sTerm.totI)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value green">−${fmt(savTerm)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_term')}</div><div class="stat-value">${sTerm.months} ${t('mo')} (${sTerm.years} ${t('yr')})</div></div>
+      <div class="stat"><div class="stat-label">${t('s_total')}</div><div class="stat-value">${fmt(sTerm.totP)} PLN</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">${t('card2_title')}</span><span class="badge orange">${t('card2_badge')}</span></div>
+      <div class="stat"><div class="stat-label">${t('s_interest')}</div><div class="stat-value red">${fmt(sPay.totI)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value">${fmt(savPay)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_term')}</div><div class="stat-value">${sPay.months} ${t('mo')} (${sPay.years} ${t('yr')})</div></div>
+      <div class="stat"><div class="stat-label">${t('s_total')}</div><div class="stat-value">${fmt(sPay.totP)} PLN</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">${t('card3_title')}</span></div>
+      <div class="stat"><div class="stat-label">${t('s_less_int')}</div><div class="stat-value green">${fmt(diff)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_faster')}</div><div class="stat-value green">${sPay.months - sTerm.months} ${t('months')}</div></div>
+      <div class="stat"><div class="stat-label">${t('s_less_total')}</div><div class="stat-value green">${fmt(sPay.totP - sTerm.totP)} PLN</div></div>
+    </div>
+  `;
+
+  /* Charts */
+  renderBalance(base, sTerm, sPay);
+  renderInterest(base, sTerm, sPay);
+  renderPaymentStructure(sTerm);
+}
+
+/* =========== CHARTS =========== */
+const chartColors = { base: '#64748b', term: '#4ade80', pay: '#f87171' };
+
+function chartOpts(yLabel) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 300 },
+    plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 14, padding: 16 } } },
+    scales: {
+      x: { title: { display: true, text: t('ch_month'), color: '#94a3b8' }, ticks: { color: '#475569', maxTicksLimit: 20 }, grid: { color: '#1e293b' } },
+      y: { title: { display: true, text: yLabel, color: '#94a3b8' }, ticks: { color: '#475569', callback: v => fmt(v) }, grid: { color: '#1e293b' } }
+    }
+  };
+}
+
+function renderBalance(base, sTerm, sPay) {
+  const ctx = document.getElementById('chartBalance').getContext('2d');
+  if (charts.bal) charts.bal.destroy();
+  const step = Math.max(1, Math.floor(Math.max(base.months, sPay.months) / 120));
+  const maxM = Math.max(base.months, sPay.months);
+  const labels = [], dB = [], dT = [], dP = [];
+  for (let i = 0; i <= maxM; i += step) {
+    labels.push(i);
+    dB.push(i < base.hist.length ? base.hist[i]?.bal ?? 0 : 0);
+    dT.push(i < sTerm.hist.length ? sTerm.hist[i]?.bal ?? 0 : 0);
+    dP.push(i < sPay.hist.length ? sPay.hist[i]?.bal ?? 0 : 0);
+  }
+  charts.bal = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: t('ch_no_extra'), data: dB, borderColor: chartColors.base, borderWidth: 1.5, pointRadius: 0, borderDash: [5, 5] },
+      { label: t('ch_reduce_n'), data: dT, borderColor: chartColors.term, borderWidth: 2.5, pointRadius: 0 },
+      { label: t('ch_reduce_p'), data: dP, borderColor: chartColors.pay, borderWidth: 2, pointRadius: 0 }
+    ]},
+    options: chartOpts(t('ch_balance'))
+  });
+}
+
+function renderInterest(base, sTerm, sPay) {
+  const ctx = document.getElementById('chartInterest').getContext('2d');
+  if (charts.int) charts.int.destroy();
+  const step = Math.max(1, Math.floor(Math.max(base.months, sPay.months) / 120));
+  const maxM = Math.max(base.months, sPay.months);
+  const labels = [], dB = [], dT = [], dP = [];
+  let cB = 0, cT = 0, cP = 0;
+  for (let i = 0; i < maxM; i++) {
+    if (i < base.hist.length) cB += base.hist[i].interest;
+    if (i < sTerm.hist.length) cT += sTerm.hist[i].interest;
+    if (i < sPay.hist.length) cP += sPay.hist[i].interest;
+    if (i % step === 0) { labels.push(i); dB.push(Math.round(cB)); dT.push(Math.round(cT)); dP.push(Math.round(cP)); }
+  }
+  charts.int = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: t('ch_no_extra'), data: dB, borderColor: chartColors.base, borderWidth: 1.5, pointRadius: 0, borderDash: [5, 5], fill: false },
+      { label: t('ch_reduce_n'), data: dT, borderColor: chartColors.term, borderWidth: 2.5, pointRadius: 0, fill: false },
+      { label: t('ch_reduce_p'), data: dP, borderColor: chartColors.pay, borderWidth: 2, pointRadius: 0, fill: false }
+    ]},
+    options: chartOpts(t('ch_cum_int'))
+  });
+}
+
+function renderPaymentStructure(sTerm) {
+  const ctx = document.getElementById('chartPayment').getContext('2d');
+  if (charts.pay) charts.pay.destroy();
+  const step = Math.max(1, Math.floor(sTerm.months / 40));
+  const labels = [], interests = [], principals = [];
+  sTerm.hist.forEach((h, i) => {
+    if (i % step === 0) { labels.push(h.m); interests.push(Math.round(h.interest)); principals.push(Math.round(h.principal)); }
+  });
+  charts.pay = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: t('ch_interest'), data: interests, backgroundColor: 'rgba(248,113,113,0.7)', borderRadius: 2 },
+      { label: t('ch_principal'), data: principals, backgroundColor: 'rgba(74,222,128,0.7)', borderRadius: 2 }
+    ]},
+    options: {
+      ...chartOpts('PLN'),
+      scales: {
+        x: { ...chartOpts('PLN').scales.x, stacked: true },
+        y: { ...chartOpts('PLN').scales.y, stacked: true }
+      }
+    }
+  });
+}
+
+/* =========== EVENTS =========== */
+let debounceTimer;
+function onInput() { clearTimeout(debounceTimer); debounceTimer = setTimeout(render, 200); }
+
+document.getElementById('inPrincipal').addEventListener('input', onInput);
+document.getElementById('inRate').addEventListener('input', onInput);
+document.getElementById('inPayments').addEventListener('input', onInput);
+document.getElementById('inExtra').addEventListener('input', function () {
+  document.querySelectorAll('.extra-btn').forEach(b => b.classList.remove('active'));
+  if ([500, 1000, 1500, 2000].includes(parseInt(this.value))) {
+    document.querySelector(`.extra-btn[data-val="${parseInt(this.value)}"]`)?.classList.add('active');
+  }
+  onInput();
+});
+
+document.querySelectorAll('.extra-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.extra-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('inExtra').value = this.dataset.val;
+    onInput();
+  });
+});
+
+/* =========== INIT =========== */
+applyLabels();
+render();
+</script>
+</body>
+</html>
