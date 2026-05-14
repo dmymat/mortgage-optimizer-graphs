@@ -15,13 +15,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
 .container { max-width: 1100px; margin: 0 auto; }
-
 h1 { font-size: 1.6rem; color: var(--accent); margin-bottom: 4px; }
-.subtitle { color: var(--muted); margin-bottom: 20px; font-size: 0.9rem; }
+.subtitle { color: var(--muted); margin-bottom: 12px; font-size: 0.9rem; }
 h2 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
-/* ===== LANG SWITCHER ===== */
-.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+/* ===== TOP BAR ===== */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
 .lang-switch { display: flex; gap: 4px; }
 .lang-btn {
   padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
@@ -31,22 +30,31 @@ h2 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent); border-botto
 .lang-btn:hover { border-color: var(--accent); color: var(--text); }
 .lang-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
+/* ===== PAGE TABS ===== */
+.page-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.page-tab {
+  padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.9rem;
+  font-weight: 600; transition: all 0.15s;
+}
+.page-tab:hover { border-color: var(--accent); color: var(--text); }
+.page-tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.page { display: none; }
+.page.active { display: block; }
+
 /* ===== INPUT PANEL ===== */
 .input-panel {
   background: var(--card); border: 1px solid var(--border); border-radius: 12px;
   padding: 20px; margin-bottom: 20px;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
-  align-items: flex-start; /* Виправлено вирівнювання інпутів */
+  align-items: flex-start;
 }
-.field {
-  display: flex;
-  flex-direction: column;
-}
+.field { display: flex; flex-direction: column; }
 .field label {
   display: block; font-size: 0.78rem; color: var(--muted); text-transform: uppercase;
   letter-spacing: 0.4px; margin-bottom: 6px;
 }
-.field input {
+.field input, .field select {
   width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
   background: var(--input-bg); color: var(--text); font-size: 1.05rem; font-weight: 600;
   font-family: 'SF Mono', Monaco, Consolas, monospace; transition: border-color 0.2s;
@@ -83,20 +91,30 @@ h2 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent); border-botto
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
 .card.best { border-color: var(--green); box-shadow: 0 0 16px rgba(74, 222, 128, 0.08); }
+.card.alt { border-color: var(--accent); box-shadow: 0 0 16px rgba(56, 189, 248, 0.08); }
 .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .card-title { font-size: 0.92rem; color: var(--muted); }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
 .badge.green { background: var(--green); color: var(--bg); }
 .badge.orange { background: var(--orange); color: var(--bg); }
+.badge.accent { background: var(--accent); color: var(--bg); }
+.badge.red { background: var(--red); color: var(--bg); }
 .stat { margin-bottom: 6px; }
 .stat-label { font-size: 0.78rem; color: var(--muted); }
 .stat-value { font-size: 1.1rem; font-weight: 600; }
 .green { color: var(--green); }
 .red { color: var(--red); }
+.accent-c { color: var(--accent); }
 
 /* ===== CHARTS ===== */
 .chart-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .chart-wrap { position: relative; height: 320px; }
+
+/* ===== SECTION LABEL for refinance ===== */
+.section-label {
+  font-size: 0.78rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;
+  grid-column: 1 / -1; margin-top: 4px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+}
 
 .footer { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--border); }
 </style>
@@ -104,232 +122,278 @@ h2 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent); border-botto
 <body>
 <div class="container">
 
+<!-- ===== TOP BAR ===== -->
 <div class="top-bar">
   <div>
     <h1 id="title"></h1>
     <p class="subtitle" id="subtitle"></p>
   </div>
   <div class="lang-switch">
-    <!-- Видалені емодзі для уникнення дублювання -->
-    <button class="lang-btn active" onclick="setLang('uk')">UA</button>
-    <button class="lang-btn" onclick="setLang('pl')">PL</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn active" data-lang="uk">UA</button>
+    <button class="lang-btn" data-lang="pl">PL</button>
+    <button class="lang-btn" data-lang="en">EN</button>
   </div>
 </div>
 
-<!-- ===== INPUTS ===== -->
-<div class="input-panel">
-  <div class="field">
-    <label id="lbl_principal"></label>
-    <input type="text" id="inPrincipal" value="260000" inputmode="numeric">
-  </div>
-  <div class="field">
-    <label id="lbl_rate"></label>
-    <input type="text" id="inRate" value="7.19" inputmode="decimal">
-  </div>
-  <div class="field">
-    <label id="lbl_payments"></label>
-    <input type="text" id="inPayments" value="300" inputmode="numeric">
-    <div class="unit" id="yearsHint"></div>
-  </div>
-  <div class="extra-section">
-    <label id="lbl_extra" style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;display:block;"></label>
-    <div class="extra-row">
-      <button class="extra-btn" data-val="500">500</button>
-      <button class="extra-btn active" data-val="1000">1 000</button>
-      <button class="extra-btn" data-val="1500">1 500</button>
-      <button class="extra-btn" data-val="2000">2 000</button>
-      <span class="extra-label" id="lbl_or"></span>
-      <input type="text" class="extra-input" id="inExtra" value="1000" inputmode="numeric" placeholder="">
+<!-- ===== PAGE TABS ===== -->
+<div class="page-tabs">
+  <button class="page-tab active" data-page="downpay" id="tab_downpay"></button>
+  <button class="page-tab" data-page="prepay" id="tab_prepay"></button>
+  <button class="page-tab" data-page="refi" id="tab_refi"></button>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 1: PREPAYMENT                                           -->
+<!-- ============================================================ -->
+<div class="page" id="page_prepay">
+  <div class="input-panel">
+    <div class="field">
+      <label id="p1_lbl_principal"></label>
+      <input type="text" id="p1_principal" value="260000" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label id="p1_lbl_rate"></label>
+      <input type="text" id="p1_rate" value="7.19" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label id="p1_lbl_payments"></label>
+      <input type="text" id="p1_payments" value="300" inputmode="numeric">
+      <div class="unit" id="p1_yearsHint"></div>
+    </div>
+    <div class="extra-section">
+      <label id="p1_lbl_extra" style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;display:block;"></label>
+      <div class="extra-row">
+        <button class="extra-btn" data-val="500">500</button>
+        <button class="extra-btn active" data-val="1000">1 000</button>
+        <button class="extra-btn" data-val="1500">1 500</button>
+        <button class="extra-btn" data-val="2000">2 000</button>
+        <span class="extra-label" id="p1_lbl_or"></span>
+        <input type="text" class="extra-input" id="p1_extra" value="1000" inputmode="numeric">
+      </div>
     </div>
   </div>
+  <div id="p1_kpi" class="kpi-row"></div>
+  <h2 id="p1_h_strat"></h2>
+  <div id="p1_cards" class="cards"></div>
+  <h2 id="p1_h_bal"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p1_chartBal"></canvas></div></div>
+  <h2 id="p1_h_int"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p1_chartInt"></canvas></div></div>
+  <h2 id="p1_h_struct"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p1_chartPay"></canvas></div></div>
 </div>
 
-<div id="kpiRow" class="kpi-row"></div>
+<!-- ============================================================ -->
+<!-- PAGE 2: DOWN PAYMENT                                         -->
+<!-- ============================================================ -->
+<div class="page active" id="page_downpay">
+  <div class="input-panel">
+    <div class="field">
+      <label id="p2_lbl_property"></label>
+      <input type="text" id="p2_property" value="400000" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label id="p2_lbl_down"></label>
+      <input type="text" id="p2_down" value="80000" inputmode="numeric">
+      <div class="unit" id="p2_downPct"></div>
+    </div>
+    <div class="field">
+      <label id="p2_lbl_rate"></label>
+      <input type="text" id="p2_rate" value="7.19" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label id="p2_lbl_payments"></label>
+      <input type="text" id="p2_payments" value="300" inputmode="numeric">
+      <div class="unit" id="p2_yearsHint"></div>
+    </div>
+  </div>
+  <div id="p2_kpi" class="kpi-row"></div>
+  <h2 id="p2_h_compare"></h2>
+  <div id="p2_cards" class="cards"></div>
+  <h2 id="p2_h_bal"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p2_chartBal"></canvas></div></div>
+  <h2 id="p2_h_int"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p2_chartInt"></canvas></div></div>
+  <h2 id="p2_h_pay"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p2_chartPay"></canvas></div></div>
+</div>
 
-<h2 id="h_strategies"></h2>
-<div id="stratCards" class="cards"></div>
-
-<h2 id="h_balance"></h2>
-<div class="chart-box"><div class="chart-wrap"><canvas id="chartBalance"></canvas></div></div>
-
-<h2 id="h_interest"></h2>
-<div class="chart-box"><div class="chart-wrap"><canvas id="chartInterest"></canvas></div></div>
-
-<h2 id="h_structure"></h2>
-<div class="chart-box"><div class="chart-wrap"><canvas id="chartPayment"></canvas></div></div>
+<!-- ============================================================ -->
+<!-- PAGE 3: REFINANCING                                          -->
+<!-- ============================================================ -->
+<div class="page" id="page_refi">
+  <div class="input-panel">
+    <div class="field">
+      <label id="p3_lbl_principal"></label>
+      <input type="text" id="p3_principal" value="260000" inputmode="numeric">
+    </div>
+    <div class="section-label" id="p3_sec_loan1"></div>
+    <div class="field">
+      <label id="p3_lbl_rate1"></label>
+      <input type="text" id="p3_rate1" value="7.19" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label id="p3_lbl_pay1"></label>
+      <input type="text" id="p3_pay1" value="300" inputmode="numeric">
+      <div class="unit" id="p3_years1"></div>
+    </div>
+    <div class="section-label" id="p3_sec_loan2"></div>
+    <div class="field">
+      <label id="p3_lbl_rate2"></label>
+      <input type="text" id="p3_rate2" value="6.26" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label id="p3_lbl_pay2"></label>
+      <input type="text" id="p3_pay2" value="300" inputmode="numeric">
+      <div class="unit" id="p3_years2"></div>
+    </div>
+  </div>
+  <div id="p3_kpi" class="kpi-row"></div>
+  <h2 id="p3_h_compare"></h2>
+  <div id="p3_cards" class="cards"></div>
+  <h2 id="p3_h_bal"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p3_chartBal"></canvas></div></div>
+  <h2 id="p3_h_int"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p3_chartInt"></canvas></div></div>
+  <h2 id="p3_h_pay"></h2>
+  <div class="chart-box"><div class="chart-wrap"><canvas id="p3_chartPay"></canvas></div></div>
+</div>
 
 <div class="footer" id="footerText"></div>
 </div>
 
 <script>
-/* =========== i18n =========== */
+/* ================================================================
+   i18n
+   ================================================================ */
 const i18n = {
-  uk: {
-    title: 'Калькулятор іпотеки',
-    subtitle: 'Порівняння стратегій дострокового погашення',
-    lbl_principal: 'Сума кредиту (PLN)',
-    lbl_rate: 'Річна ставка (%)',
-    lbl_payments: 'Кількість платежів',
-    lbl_extra: 'Додаткова виплата на місяць (PLN)',
-    lbl_or: 'або:',
-    placeholder: 'своя сума',
-    years: 'років',
-    h_strategies: 'Порівняння стратегій',
-    h_balance: 'Залишок кредиту',
-    h_interest: 'Накопичені відсотки',
-    h_structure: 'Структура платежу (зменшення к-ті)',
-    footer: 'Mortgage Optimizer · Розрахунки виконуються у браузері',
-    kpi_pay: 'Платіж без доплати',
-    kpi_int: 'Відсотки без доплати',
-    kpi_total: 'Платіж + доплата',
-    kpi_diff: 'Різниця стратегій',
-    card1_title: 'Зменшення к-ті платежів',
-    card1_badge: 'ОПТИМАЛЬНО',
-    card2_title: 'Зменшення розміру платежу',
-    card2_badge: 'ДОРОЖЧЕ',
-    card3_title: 'Зменш. к-ті виграє на',
-    s_interest: 'Відсотки',
-    s_savings: 'Економія',
-    s_term: 'Термін',
-    s_total: 'Загалом виплачено',
-    s_less_int: 'Менше відсотків',
-    s_faster: 'Швидше на',
-    s_less_total: 'Менше виплат загалом',
-    months: 'місяців',
-    mo: 'міс',
-    yr: 'р.',
-    ch_no_extra: 'Без доплати',
-    ch_reduce_n: 'Зменш. к-ті',
-    ch_reduce_p: 'Зменш. платежу',
-    ch_month: 'Місяць',
-    ch_balance: 'Залишок (PLN)',
-    ch_cum_int: 'Накопичені відсотки (PLN)',
-    ch_interest: 'Відсотки',
-    ch_principal: 'Тіло кредиту'
-  },
-  pl: {
-    title: 'Kalkulator hipoteczny',
-    subtitle: 'Porównanie strategii wcześniejszej spłaty',
-    lbl_principal: 'Kwota kredytu (PLN)',
-    lbl_rate: 'Oprocentowanie roczne (%)',
-    lbl_payments: 'Liczba rat',
-    lbl_extra: 'Dodatkowa wpłata miesięczna (PLN)',
-    lbl_or: 'lub:',
-    placeholder: 'własna kwota',
-    years: 'lat',
-    h_strategies: 'Porównanie strategii',
-    h_balance: 'Saldo kredytu',
-    h_interest: 'Skumulowane odsetki',
-    h_structure: 'Struktura raty (skrócenie okresu)',
-    footer: 'Mortgage Optimizer · Obliczenia wykonywane w przeglądarce',
-    kpi_pay: 'Rata bez nadpłaty',
-    kpi_int: 'Odsetki bez nadpłaty',
-    kpi_total: 'Rata + nadpłata',
-    kpi_diff: 'Różnica strategii',
-    card1_title: 'Skrócenie okresu spłaty',
-    card1_badge: 'OPTYMALNIE',
-    card2_title: 'Zmniejszenie raty',
-    card2_badge: 'DROŻEJ',
-    card3_title: 'Skrócenie wygrywa o',
-    s_interest: 'Odsetki',
-    s_savings: 'Oszczędność',
-    s_term: 'Okres spłaty',
-    s_total: 'Suma wpłat',
-    s_less_int: 'Mniej odsetek',
-    s_faster: 'Szybciej o',
-    s_less_total: 'Mniej wpłat łącznie',
-    months: 'miesięcy',
-    mo: 'mies.',
-    yr: 'l.',
-    ch_no_extra: 'Bez nadpłaty',
-    ch_reduce_n: 'Skrócenie okresu',
-    ch_reduce_p: 'Zmniejszenie raty',
-    ch_month: 'Miesiąc',
-    ch_balance: 'Saldo (PLN)',
-    ch_cum_int: 'Skumulowane odsetki (PLN)',
-    ch_interest: 'Odsetki',
-    ch_principal: 'Kapitał'
-  },
-  en: {
-    title: 'Mortgage Calculator',
-    subtitle: 'Prepayment strategy comparison',
-    lbl_principal: 'Loan amount (PLN)',
-    lbl_rate: 'Annual rate (%)',
-    lbl_payments: 'Number of payments',
-    lbl_extra: 'Monthly extra payment (PLN)',
-    lbl_or: 'or:',
-    placeholder: 'custom amount',
-    years: 'years',
-    h_strategies: 'Strategy comparison',
-    h_balance: 'Remaining balance',
-    h_interest: 'Cumulative interest',
-    h_structure: 'Payment structure (term reduction)',
-    footer: 'Mortgage Optimizer · Calculations run in your browser',
-    kpi_pay: 'Payment w/o extra',
-    kpi_int: 'Interest w/o extra',
-    kpi_total: 'Payment + extra',
-    kpi_diff: 'Strategy difference',
-    card1_title: 'Reduce number of payments',
-    card1_badge: 'OPTIMAL',
-    card2_title: 'Reduce payment amount',
-    card2_badge: 'COSTLIER',
-    card3_title: 'Term reduction wins by',
-    s_interest: 'Interest',
-    s_savings: 'Savings',
-    s_term: 'Payoff term',
-    s_total: 'Total paid',
-    s_less_int: 'Less interest',
-    s_faster: 'Faster by',
-    s_less_total: 'Less total payments',
-    months: 'months',
-    mo: 'mo',
-    yr: 'yr',
-    ch_no_extra: 'No extra',
-    ch_reduce_n: 'Reduce term',
-    ch_reduce_p: 'Reduce payment',
-    ch_month: 'Month',
-    ch_balance: 'Balance (PLN)',
-    ch_cum_int: 'Cumulative interest (PLN)',
-    ch_interest: 'Interest',
-    ch_principal: 'Principal'
-  }
+uk: {
+  // global
+  title: 'Калькулятор іпотеки', subtitle_prepay: 'Порівняння стратегій дострокового погашення',
+  subtitle_downpay: 'Вплив першого внеску на кредит', subtitle_refi: 'Порівняння кредитів для рефінансування',
+  tab_prepay: 'Надплати', tab_downpay: 'Перший внесок', tab_refi: 'Рефінансування',
+  footer: 'Mortgage Optimizer · Розрахунки виконуються у браузері',
+  years: 'років', months: 'місяців', mo: 'міс', yr: 'р.',
+  // p1
+  lbl_principal: 'Сума кредиту (PLN)', lbl_rate: 'Річна ставка (%)', lbl_payments: 'Кількість платежів',
+  lbl_extra: 'Додаткова виплата на місяць (PLN)', lbl_or: 'або:', placeholder: 'своя сума',
+  h_strategies: 'Порівняння стратегій', h_balance: 'Залишок кредиту', h_interest: 'Накопичені відсотки',
+  h_structure: 'Структура платежу (зменшення к-ті)',
+  kpi_pay: 'Платіж без доплати', kpi_int: 'Відсотки без доплати', kpi_total: 'Платіж + доплата', kpi_diff: 'Різниця стратегій',
+  card1_title: 'Зменшення к-ті платежів', card1_badge: 'ОПТИМАЛЬНО',
+  card2_title: 'Зменшення розміру платежу', card2_badge: 'ДОРОЖЧЕ',
+  card3_title: 'Зменш. к-ті виграє на',
+  s_interest: 'Відсотки', s_savings: 'Економія', s_term: 'Термін', s_total: 'Загалом виплачено',
+  s_less_int: 'Менше відсотків', s_faster: 'Швидше на', s_less_total: 'Менше виплат загалом',
+  ch_no_extra: 'Без доплати', ch_reduce_n: 'Зменш. к-ті', ch_reduce_p: 'Зменш. платежу',
+  ch_month: 'Місяць', ch_balance: 'Залишок (PLN)', ch_cum_int: 'Накопичені відсотки (PLN)',
+  ch_interest: 'Відсотки', ch_principal: 'Тіло кредиту',
+  // p2
+  lbl_property: 'Вартість нерухомості (PLN)', lbl_down: 'Перший внесок (PLN)',
+  h_dp_compare: 'Порівняння варіантів першого внеску', h_dp_bal: 'Залишок кредиту', h_dp_int: 'Накопичені відсотки',
+  h_dp_pay: 'Місячний платіж по роках',
+  kpi_loan: 'Сума кредиту', kpi_pct: 'Внесок %', kpi_monthly: 'Місячний платіж', kpi_total_int: 'Загальні відсотки',
+  dp_your: 'Ваш внесок', dp_10: '10% внесок', dp_20: '20% внесок', dp_30: '30% внесок',
+  dp_loan: 'Кредит', dp_payment: 'Платіж/міс', dp_total_int: 'Відсотки', dp_total_paid: 'Загалом',
+  ch_dp_bal: 'Залишок (PLN)', ch_dp_int: 'Накопичені відсотки (PLN)', ch_dp_pay: 'Платіж (PLN)',
+  // p3
+  sec_loan1: 'Кредит 1 (поточний)', sec_loan2: 'Кредит 2 (рефінансування)',
+  lbl_rate1: 'Ставка 1 (%)', lbl_rate2: 'Ставка 2 (%)', lbl_pay1: 'Платежів (кредит 1)', lbl_pay2: 'Платежів (кредит 2)',
+  h_rf_compare: 'Порівняння кредитів', h_rf_bal: 'Залишок кредиту', h_rf_int: 'Накопичені відсотки',
+  h_rf_pay: 'Структура платежу',
+  kpi_pay1: 'Платіж (кредит 1)', kpi_pay2: 'Платіж (кредит 2)', kpi_save_int: 'Економія відсотків', kpi_save_mo: 'Різниця платежу',
+  rf_loan1: 'Кредит 1', rf_loan2: 'Кредит 2', rf_diff: 'Різниця',
+  rf_monthly: 'Платіж/міс', rf_total_int: 'Відсотки', rf_total_paid: 'Загалом', rf_term: 'Термін',
+  rf_save_monthly: 'Економія/міс', rf_save_int: 'Економія відсотків', rf_save_total: 'Економія загалом',
+  rf_better: 'ВИГІДНІШЕ', rf_worse: 'ДОРОЖЧЕ',
+  ch_loan1: 'Кредит 1', ch_loan2: 'Кредит 2'
+},
+pl: {
+  title: 'Kalkulator hipoteczny', subtitle_prepay: 'Porównanie strategii wcześniejszej spłaty',
+  subtitle_downpay: 'Wpływ wkładu własnego na kredyt', subtitle_refi: 'Porównanie kredytów do refinansowania',
+  tab_prepay: 'Nadpłaty', tab_downpay: 'Wkład własny', tab_refi: 'Refinansowanie',
+  footer: 'Mortgage Optimizer · Obliczenia wykonywane w przeglądarce',
+  years: 'lat', months: 'miesięcy', mo: 'mies.', yr: 'l.',
+  lbl_principal: 'Kwota kredytu (PLN)', lbl_rate: 'Oprocentowanie roczne (%)', lbl_payments: 'Liczba rat',
+  lbl_extra: 'Dodatkowa wpłata miesięczna (PLN)', lbl_or: 'lub:', placeholder: 'własna kwota',
+  h_strategies: 'Porównanie strategii', h_balance: 'Saldo kredytu', h_interest: 'Skumulowane odsetki',
+  h_structure: 'Struktura raty (skrócenie okresu)',
+  kpi_pay: 'Rata bez nadpłaty', kpi_int: 'Odsetki bez nadpłaty', kpi_total: 'Rata + nadpłata', kpi_diff: 'Różnica strategii',
+  card1_title: 'Skrócenie okresu spłaty', card1_badge: 'OPTYMALNIE',
+  card2_title: 'Zmniejszenie raty', card2_badge: 'DROŻEJ',
+  card3_title: 'Skrócenie wygrywa o',
+  s_interest: 'Odsetki', s_savings: 'Oszczędność', s_term: 'Okres spłaty', s_total: 'Suma wpłat',
+  s_less_int: 'Mniej odsetek', s_faster: 'Szybciej o', s_less_total: 'Mniej wpłat łącznie',
+  ch_no_extra: 'Bez nadpłaty', ch_reduce_n: 'Skrócenie okresu', ch_reduce_p: 'Zmniejszenie raty',
+  ch_month: 'Miesiąc', ch_balance: 'Saldo (PLN)', ch_cum_int: 'Skumulowane odsetki (PLN)',
+  ch_interest: 'Odsetki', ch_principal: 'Kapitał',
+  lbl_property: 'Wartość nieruchomości (PLN)', lbl_down: 'Wkład własny (PLN)',
+  h_dp_compare: 'Porównanie wariantów wkładu własnego', h_dp_bal: 'Saldo kredytu', h_dp_int: 'Skumulowane odsetki',
+  h_dp_pay: 'Rata miesięczna wg lat',
+  kpi_loan: 'Kwota kredytu', kpi_pct: 'Wkład %', kpi_monthly: 'Rata miesięczna', kpi_total_int: 'Odsetki łącznie',
+  dp_your: 'Twój wkład', dp_10: '10% wkładu', dp_20: '20% wkładu', dp_30: '30% wkładu',
+  dp_loan: 'Kredyt', dp_payment: 'Rata/mies.', dp_total_int: 'Odsetki', dp_total_paid: 'Łącznie',
+  ch_dp_bal: 'Saldo (PLN)', ch_dp_int: 'Skumulowane odsetki (PLN)', ch_dp_pay: 'Rata (PLN)',
+  sec_loan1: 'Kredyt 1 (obecny)', sec_loan2: 'Kredyt 2 (refinansowanie)',
+  lbl_rate1: 'Oprocentowanie 1 (%)', lbl_rate2: 'Oprocentowanie 2 (%)', lbl_pay1: 'Rat (kredyt 1)', lbl_pay2: 'Rat (kredyt 2)',
+  h_rf_compare: 'Porównanie kredytów', h_rf_bal: 'Saldo kredytu', h_rf_int: 'Skumulowane odsetki',
+  h_rf_pay: 'Struktura raty',
+  kpi_pay1: 'Rata (kredyt 1)', kpi_pay2: 'Rata (kredyt 2)', kpi_save_int: 'Oszczędność odsetek', kpi_save_mo: 'Różnica raty',
+  rf_loan1: 'Kredyt 1', rf_loan2: 'Kredyt 2', rf_diff: 'Różnica',
+  rf_monthly: 'Rata/mies.', rf_total_int: 'Odsetki', rf_total_paid: 'Łącznie', rf_term: 'Okres',
+  rf_save_monthly: 'Oszczędność/mies.', rf_save_int: 'Oszczędność odsetek', rf_save_total: 'Oszczędność łącznie',
+  rf_better: 'KORZYSTNIEJ', rf_worse: 'DROŻEJ',
+  ch_loan1: 'Kredyt 1', ch_loan2: 'Kredyt 2'
+},
+en: {
+  title: 'Mortgage Calculator', subtitle_prepay: 'Prepayment strategy comparison',
+  subtitle_downpay: 'Down payment impact analysis', subtitle_refi: 'Loan refinancing comparison',
+  tab_prepay: 'Prepayment', tab_downpay: 'Down payment', tab_refi: 'Refinancing',
+  footer: 'Mortgage Optimizer · Calculations run in your browser',
+  years: 'years', months: 'months', mo: 'mo', yr: 'yr',
+  lbl_principal: 'Loan amount (PLN)', lbl_rate: 'Annual rate (%)', lbl_payments: 'Number of payments',
+  lbl_extra: 'Monthly extra payment (PLN)', lbl_or: 'or:', placeholder: 'custom amount',
+  h_strategies: 'Strategy comparison', h_balance: 'Remaining balance', h_interest: 'Cumulative interest',
+  h_structure: 'Payment structure (term reduction)',
+  kpi_pay: 'Payment w/o extra', kpi_int: 'Interest w/o extra', kpi_total: 'Payment + extra', kpi_diff: 'Strategy difference',
+  card1_title: 'Reduce number of payments', card1_badge: 'OPTIMAL',
+  card2_title: 'Reduce payment amount', card2_badge: 'COSTLIER',
+  card3_title: 'Term reduction wins by',
+  s_interest: 'Interest', s_savings: 'Savings', s_term: 'Payoff term', s_total: 'Total paid',
+  s_less_int: 'Less interest', s_faster: 'Faster by', s_less_total: 'Less total payments',
+  ch_no_extra: 'No extra', ch_reduce_n: 'Reduce term', ch_reduce_p: 'Reduce payment',
+  ch_month: 'Month', ch_balance: 'Balance (PLN)', ch_cum_int: 'Cumulative interest (PLN)',
+  ch_interest: 'Interest', ch_principal: 'Principal',
+  lbl_property: 'Property value (PLN)', lbl_down: 'Down payment (PLN)',
+  h_dp_compare: 'Down payment comparison', h_dp_bal: 'Remaining balance', h_dp_int: 'Cumulative interest',
+  h_dp_pay: 'Monthly payment over time',
+  kpi_loan: 'Loan amount', kpi_pct: 'Down %', kpi_monthly: 'Monthly payment', kpi_total_int: 'Total interest',
+  dp_your: 'Your down pmt', dp_10: '10% down', dp_20: '20% down', dp_30: '30% down',
+  dp_loan: 'Loan', dp_payment: 'Payment/mo', dp_total_int: 'Interest', dp_total_paid: 'Total',
+  ch_dp_bal: 'Balance (PLN)', ch_dp_int: 'Cumulative interest (PLN)', ch_dp_pay: 'Payment (PLN)',
+  sec_loan1: 'Loan 1 (current)', sec_loan2: 'Loan 2 (refinance)',
+  lbl_rate1: 'Rate 1 (%)', lbl_rate2: 'Rate 2 (%)', lbl_pay1: 'Payments (loan 1)', lbl_pay2: 'Payments (loan 2)',
+  h_rf_compare: 'Loan comparison', h_rf_bal: 'Remaining balance', h_rf_int: 'Cumulative interest',
+  h_rf_pay: 'Payment structure',
+  kpi_pay1: 'Payment (loan 1)', kpi_pay2: 'Payment (loan 2)', kpi_save_int: 'Interest savings', kpi_save_mo: 'Payment difference',
+  rf_loan1: 'Loan 1', rf_loan2: 'Loan 2', rf_diff: 'Difference',
+  rf_monthly: 'Payment/mo', rf_total_int: 'Interest', rf_total_paid: 'Total', rf_term: 'Term',
+  rf_save_monthly: 'Savings/mo', rf_save_int: 'Interest savings', rf_save_total: 'Total savings',
+  rf_better: 'BETTER', rf_worse: 'COSTLIER',
+  ch_loan1: 'Loan 1', ch_loan2: 'Loan 2'
+}
 };
 
-let lang = 'uk';
-function t(key) { return i18n[lang][key] || key; }
+let lang = 'uk', curPage = 'downpay';
+function t(k) { return i18n[lang][k] || k; }
 
-function setLang(l) {
-  lang = l;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
-  document.documentElement.lang = l;
-  applyLabels();
-  render();
-}
-
-function applyLabels() {
-  document.getElementById('title').textContent = t('title');
-  document.getElementById('subtitle').textContent = t('subtitle');
-  document.getElementById('lbl_principal').textContent = t('lbl_principal');
-  document.getElementById('lbl_rate').textContent = t('lbl_rate');
-  document.getElementById('lbl_payments').textContent = t('lbl_payments');
-  document.getElementById('lbl_extra').textContent = t('lbl_extra');
-  document.getElementById('lbl_or').textContent = t('lbl_or');
-  document.getElementById('inExtra').placeholder = t('placeholder');
-  document.getElementById('h_strategies').textContent = t('h_strategies');
-  document.getElementById('h_balance').textContent = t('h_balance');
-  document.getElementById('h_interest').textContent = t('h_interest');
-  document.getElementById('h_structure').textContent = t('h_structure');
-  document.getElementById('footerText').textContent = t('footer');
-}
-
-/* =========== ENGINE =========== */
+/* ================================================================
+   ENGINE
+   ================================================================ */
 function annuity(P, rA, n) {
   const r = rA / 12;
   return r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
 }
-
 function sim(P, rA, N, extra, strategy) {
   const r = rA / 12;
   let bal = P, pay = annuity(P, rA, N), totI = 0, totP = 0, m = 0;
@@ -340,71 +404,147 @@ function sim(P, rA, N, extra, strategy) {
     let sched = Math.min(pay, bal + interest);
     let princ = Math.max(0, sched - interest);
     if (princ < 0) { princ = 0; sched = interest; }
-    let ex = Math.min(extra, bal - princ);
-    if (ex < 0) ex = 0;
-    let tp = princ + ex;
-    bal -= tp;
+    let ex = Math.min(extra, bal - princ); if (ex < 0) ex = 0;
+    let tp = princ + ex; bal -= tp;
     if (bal < 0) { ex += bal; tp += bal; bal = 0; }
     totI += interest; totP += sched + ex;
     hist.push({ m, pay: sched + ex, interest, principal: tp, bal });
     if (bal > 0 && ex > 0 && strategy === 'pay') {
-      const rem = N - m;
-      if (rem > 0) pay = annuity(bal, rA, rem);
+      const rem = N - m; if (rem > 0) pay = annuity(bal, rA, rem);
     }
   }
-  return { totI, totP, months: m, years: +(m / 12).toFixed(1), hist };
+  return { totI, totP, months: m, years: +(m / 12).toFixed(1), hist, monthlyPay: annuity(P, rA, N) };
 }
+function simBasic(P, rA, N) { return sim(P, rA, N, 0, 'term'); }
 
-/* =========== STATE =========== */
-let charts = {};
-
+/* ================================================================
+   UTILS
+   ================================================================ */
 function fmt(n) { return Math.round(n).toLocaleString('pl-PL'); }
 function fmt2(n) { return n.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+const charts = {};
+function destroyChart(k) { if (charts[k]) { charts[k].destroy(); delete charts[k]; } }
 
-function getInputs() {
-  const P = parseFloat(document.getElementById('inPrincipal').value.replace(/\s/g, '')) || 0;
-  const rA = (parseFloat(document.getElementById('inRate').value.replace(',', '.')) || 0) / 100;
-  const N = parseInt(document.getElementById('inPayments').value) || 1;
-  const extra = parseFloat(document.getElementById('inExtra').value.replace(/\s/g, '')) || 0;
+const cGreen = '#4ade80', cRed = '#f87171', cBase = '#64748b', cAccent = '#38bdf8', cPurple = '#a78bfa', cOrange = '#fb923c';
+
+function baseChartOpts(yLabel, xLabel) {
+  return {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+    plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 14, padding: 16 } } },
+    scales: {
+      x: { title: { display: true, text: xLabel || t('ch_month'), color: '#94a3b8' }, ticks: { color: '#475569', maxTicksLimit: 20 }, grid: { color: '#1e293b' } },
+      y: { title: { display: true, text: yLabel, color: '#94a3b8' }, ticks: { color: '#475569', callback: v => fmt(v) }, grid: { color: '#1e293b' } }
+    }
+  };
+}
+
+function lineDS(label, data, color, w, dash) {
+  return { label, data, borderColor: color, borderWidth: w || 2, pointRadius: 0, borderDash: dash || [], fill: false };
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.documentElement.lang = l;
+  applyAllLabels();
+  renderCurrent();
+}
+
+function setPage(p) {
+  curPage = p;
+  document.querySelectorAll('.page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === p));
+  document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === 'page_' + p));
+  document.getElementById('subtitle').textContent = t('subtitle_' + p);
+  renderCurrent();
+}
+
+function renderCurrent() {
+  if (curPage === 'prepay') renderP1();
+  else if (curPage === 'downpay') renderP2();
+  else renderP3();
+}
+
+function applyAllLabels() {
+  document.getElementById('title').textContent = t('title');
+  document.getElementById('subtitle').textContent = t('subtitle_' + curPage);
+  document.getElementById('tab_prepay').textContent = t('tab_prepay');
+  document.getElementById('tab_downpay').textContent = t('tab_downpay');
+  document.getElementById('tab_refi').textContent = t('tab_refi');
+  document.getElementById('footerText').textContent = t('footer');
+  // p1
+  document.getElementById('p1_lbl_principal').textContent = t('lbl_principal');
+  document.getElementById('p1_lbl_rate').textContent = t('lbl_rate');
+  document.getElementById('p1_lbl_payments').textContent = t('lbl_payments');
+  document.getElementById('p1_lbl_extra').textContent = t('lbl_extra');
+  document.getElementById('p1_lbl_or').textContent = t('lbl_or');
+  document.getElementById('p1_extra').placeholder = t('placeholder');
+  document.getElementById('p1_h_strat').textContent = t('h_strategies');
+  document.getElementById('p1_h_bal').textContent = t('h_balance');
+  document.getElementById('p1_h_int').textContent = t('h_interest');
+  document.getElementById('p1_h_struct').textContent = t('h_structure');
+  // p2
+  document.getElementById('p2_lbl_property').textContent = t('lbl_property');
+  document.getElementById('p2_lbl_down').textContent = t('lbl_down');
+  document.getElementById('p2_lbl_rate').textContent = t('lbl_rate');
+  document.getElementById('p2_lbl_payments').textContent = t('lbl_payments');
+  document.getElementById('p2_h_compare').textContent = t('h_dp_compare');
+  document.getElementById('p2_h_bal').textContent = t('h_dp_bal');
+  document.getElementById('p2_h_int').textContent = t('h_dp_int');
+  document.getElementById('p2_h_pay').textContent = t('h_dp_pay');
+  // p3
+  document.getElementById('p3_lbl_principal').textContent = t('lbl_principal');
+  document.getElementById('p3_sec_loan1').textContent = t('sec_loan1');
+  document.getElementById('p3_sec_loan2').textContent = t('sec_loan2');
+  document.getElementById('p3_lbl_rate1').textContent = t('lbl_rate1');
+  document.getElementById('p3_lbl_rate2').textContent = t('lbl_rate2');
+  document.getElementById('p3_lbl_pay1').textContent = t('lbl_pay1');
+  document.getElementById('p3_lbl_pay2').textContent = t('lbl_pay2');
+  document.getElementById('p3_h_compare').textContent = t('h_rf_compare');
+  document.getElementById('p3_h_bal').textContent = t('h_rf_bal');
+  document.getElementById('p3_h_int').textContent = t('h_rf_int');
+  document.getElementById('p3_h_pay').textContent = t('h_rf_pay');
+}
+
+/* ================================================================
+   PAGE 1: PREPAYMENT
+   ================================================================ */
+function getP1() {
+  const P = parseFloat(document.getElementById('p1_principal').value.replace(/\s/g, '')) || 0;
+  const rA = (parseFloat(document.getElementById('p1_rate').value.replace(',', '.')) || 0) / 100;
+  const N = parseInt(document.getElementById('p1_payments').value) || 1;
+  const extra = parseFloat(document.getElementById('p1_extra').value.replace(/\s/g, '')) || 0;
   return { P, rA, N, extra };
 }
 
-function render() {
-  const { P, rA, N, extra } = getInputs();
+function renderP1() {
+  const { P, rA, N, extra } = getP1();
   if (P <= 0 || rA <= 0 || N <= 0) return;
+  const mp = annuity(P, rA, N);
+  document.getElementById('p1_yearsHint').textContent = (N / 12).toFixed(1) + ' ' + t('years');
+  const base = sim(P, rA, N, 0, 'term'), sTerm = sim(P, rA, N, extra, 'term'), sPay = sim(P, rA, N, extra, 'pay');
+  const savT = base.totI - sTerm.totI, savP = base.totI - sPay.totI, diff = sPay.totI - sTerm.totI;
 
-  const monthlyPay = annuity(P, rA, N);
-  document.getElementById('yearsHint').textContent = (N / 12).toFixed(1) + ' ' + t('years');
-
-  const base = sim(P, rA, N, 0, 'term');
-  const sTerm = sim(P, rA, N, extra, 'term');
-  const sPay = sim(P, rA, N, extra, 'pay');
-
-  const savTerm = base.totI - sTerm.totI;
-  const savPay = base.totI - sPay.totI;
-  const diff = sPay.totI - sTerm.totI;
-
-  /* KPI */
-  document.getElementById('kpiRow').innerHTML = `
-    <div class="kpi"><div class="kpi-label">${t('kpi_pay')}</div><div class="kpi-val">${fmt2(monthlyPay)}</div></div>
+  document.getElementById('p1_kpi').innerHTML = `
+    <div class="kpi"><div class="kpi-label">${t('kpi_pay')}</div><div class="kpi-val">${fmt2(mp)}</div></div>
     <div class="kpi"><div class="kpi-label">${t('kpi_int')}</div><div class="kpi-val red">${fmt(base.totI)}</div></div>
-    <div class="kpi"><div class="kpi-label">${t('kpi_total')}</div><div class="kpi-val" style="color:var(--accent)">${fmt2(monthlyPay + extra)}</div></div>
-    <div class="kpi"><div class="kpi-label">${t('kpi_diff')}</div><div class="kpi-val green">${fmt(diff)} PLN</div></div>
-  `;
+    <div class="kpi"><div class="kpi-label">${t('kpi_total')}</div><div class="kpi-val" style="color:var(--accent)">${fmt2(mp + extra)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_diff')}</div><div class="kpi-val green">${fmt(diff)} PLN</div></div>`;
 
-  /* Cards */
-  document.getElementById('stratCards').innerHTML = `
+  document.getElementById('p1_cards').innerHTML = `
     <div class="card best">
       <div class="card-head"><span class="card-title">${t('card1_title')}</span><span class="badge green">${t('card1_badge')}</span></div>
       <div class="stat"><div class="stat-label">${t('s_interest')}</div><div class="stat-value green">${fmt(sTerm.totI)} PLN</div></div>
-      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value green">−${fmt(savTerm)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value green">−${fmt(savT)} PLN</div></div>
       <div class="stat"><div class="stat-label">${t('s_term')}</div><div class="stat-value">${sTerm.months} ${t('mo')} (${sTerm.years} ${t('yr')})</div></div>
       <div class="stat"><div class="stat-label">${t('s_total')}</div><div class="stat-value">${fmt(sTerm.totP)} PLN</div></div>
     </div>
     <div class="card">
       <div class="card-head"><span class="card-title">${t('card2_title')}</span><span class="badge orange">${t('card2_badge')}</span></div>
       <div class="stat"><div class="stat-label">${t('s_interest')}</div><div class="stat-value red">${fmt(sPay.totI)} PLN</div></div>
-      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value">${fmt(savPay)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('s_savings')}</div><div class="stat-value">${fmt(savP)} PLN</div></div>
       <div class="stat"><div class="stat-label">${t('s_term')}</div><div class="stat-value">${sPay.months} ${t('mo')} (${sPay.years} ${t('yr')})</div></div>
       <div class="stat"><div class="stat-label">${t('s_total')}</div><div class="stat-value">${fmt(sPay.totP)} PLN</div></div>
     </div>
@@ -413,128 +553,304 @@ function render() {
       <div class="stat"><div class="stat-label">${t('s_less_int')}</div><div class="stat-value green">${fmt(diff)} PLN</div></div>
       <div class="stat"><div class="stat-label">${t('s_faster')}</div><div class="stat-value green">${sPay.months - sTerm.months} ${t('months')}</div></div>
       <div class="stat"><div class="stat-label">${t('s_less_total')}</div><div class="stat-value green">${fmt(sPay.totP - sTerm.totP)} PLN</div></div>
-    </div>
-  `;
+    </div>`;
 
-  /* Charts */
-  renderBalance(base, sTerm, sPay);
-  renderInterest(base, sTerm, sPay);
-  renderPaymentStructure(sTerm);
-}
-
-/* =========== CHARTS =========== */
-const chartColors = { base: '#64748b', term: '#4ade80', pay: '#f87171' };
-
-function chartOpts(yLabel) {
-  return {
-    responsive: true, maintainAspectRatio: false,
-    animation: { duration: 300 },
-    plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 14, padding: 16 } } },
-    scales: {
-      x: { title: { display: true, text: t('ch_month'), color: '#94a3b8' }, ticks: { color: '#475569', maxTicksLimit: 20 }, grid: { color: '#1e293b' } },
-      y: { title: { display: true, text: yLabel, color: '#94a3b8' }, ticks: { color: '#475569', callback: v => fmt(v) }, grid: { color: '#1e293b' } }
-    }
-  };
-}
-
-function renderBalance(base, sTerm, sPay) {
-  const ctx = document.getElementById('chartBalance').getContext('2d');
-  if (charts.bal) charts.bal.destroy();
+  // Charts
   const step = Math.max(1, Math.floor(Math.max(base.months, sPay.months) / 120));
   const maxM = Math.max(base.months, sPay.months);
-  const labels = [], dB = [], dT = [], dP = [];
-  for (let i = 0; i <= maxM; i += step) {
-    labels.push(i);
-    dB.push(i < base.hist.length ? base.hist[i]?.bal ?? 0 : 0);
-    dT.push(i < sTerm.hist.length ? sTerm.hist[i]?.bal ?? 0 : 0);
-    dP.push(i < sPay.hist.length ? sPay.hist[i]?.bal ?? 0 : 0);
-  }
-  charts.bal = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [
-      { label: t('ch_no_extra'), data: dB, borderColor: chartColors.base, borderWidth: 1.5, pointRadius: 0, borderDash: [5, 5] },
-      { label: t('ch_reduce_n'), data: dT, borderColor: chartColors.term, borderWidth: 2.5, pointRadius: 0 },
-      { label: t('ch_reduce_p'), data: dP, borderColor: chartColors.pay, borderWidth: 2, pointRadius: 0 }
-    ]},
-    options: chartOpts(t('ch_balance'))
+
+  // Balance
+  destroyChart('p1b');
+  const lb = [], db = [], dt = [], dp = [];
+  for (let i = 0; i <= maxM; i += step) { lb.push(i); db.push(base.hist[i]?.bal ?? 0); dt.push(sTerm.hist[i]?.bal ?? 0); dp.push(sPay.hist[i]?.bal ?? 0); }
+  charts.p1b = new Chart(document.getElementById('p1_chartBal'), {
+    type: 'line', data: { labels: lb, datasets: [lineDS(t('ch_no_extra'), db, cBase, 1.5, [5,5]), lineDS(t('ch_reduce_n'), dt, cGreen, 2.5), lineDS(t('ch_reduce_p'), dp, cRed, 2)] },
+    options: baseChartOpts(t('ch_balance'))
   });
-}
 
-function renderInterest(base, sTerm, sPay) {
-  const ctx = document.getElementById('chartInterest').getContext('2d');
-  if (charts.int) charts.int.destroy();
-  const step = Math.max(1, Math.floor(Math.max(base.months, sPay.months) / 120));
-  const maxM = Math.max(base.months, sPay.months);
-  const labels = [], dB = [], dT = [], dP = [];
+  // Interest
+  destroyChart('p1i');
+  const li = [], di = [], dti = [], dpi = [];
   let cB = 0, cT = 0, cP = 0;
   for (let i = 0; i < maxM; i++) {
     if (i < base.hist.length) cB += base.hist[i].interest;
     if (i < sTerm.hist.length) cT += sTerm.hist[i].interest;
     if (i < sPay.hist.length) cP += sPay.hist[i].interest;
-    if (i % step === 0) { labels.push(i); dB.push(Math.round(cB)); dT.push(Math.round(cT)); dP.push(Math.round(cP)); }
+    if (i % step === 0) { li.push(i); di.push(Math.round(cB)); dti.push(Math.round(cT)); dpi.push(Math.round(cP)); }
   }
-  charts.int = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [
-      { label: t('ch_no_extra'), data: dB, borderColor: chartColors.base, borderWidth: 1.5, pointRadius: 0, borderDash: [5, 5], fill: false },
-      { label: t('ch_reduce_n'), data: dT, borderColor: chartColors.term, borderWidth: 2.5, pointRadius: 0, fill: false },
-      { label: t('ch_reduce_p'), data: dP, borderColor: chartColors.pay, borderWidth: 2, pointRadius: 0, fill: false }
+  charts.p1i = new Chart(document.getElementById('p1_chartInt'), {
+    type: 'line', data: { labels: li, datasets: [lineDS(t('ch_no_extra'), di, cBase, 1.5, [5,5]), lineDS(t('ch_reduce_n'), dti, cGreen, 2.5), lineDS(t('ch_reduce_p'), dpi, cRed, 2)] },
+    options: baseChartOpts(t('ch_cum_int'))
+  });
+
+  // Structure
+  destroyChart('p1p');
+  const stp = Math.max(1, Math.floor(sTerm.months / 40));
+  const lp = [], ip = [], pp = [];
+  sTerm.hist.forEach((h, i) => { if (i % stp === 0) { lp.push(h.m); ip.push(Math.round(h.interest)); pp.push(Math.round(h.principal)); } });
+  charts.p1p = new Chart(document.getElementById('p1_chartPay'), {
+    type: 'bar', data: { labels: lp, datasets: [
+      { label: t('ch_interest'), data: ip, backgroundColor: 'rgba(248,113,113,0.7)', borderRadius: 2 },
+      { label: t('ch_principal'), data: pp, backgroundColor: 'rgba(74,222,128,0.7)', borderRadius: 2 }
     ]},
-    options: chartOpts(t('ch_cum_int'))
+    options: { ...baseChartOpts('PLN'), scales: { x: { ...baseChartOpts('PLN').scales.x, stacked: true }, y: { ...baseChartOpts('PLN').scales.y, stacked: true } } }
   });
 }
 
-function renderPaymentStructure(sTerm) {
-  const ctx = document.getElementById('chartPayment').getContext('2d');
-  if (charts.pay) charts.pay.destroy();
-  const step = Math.max(1, Math.floor(sTerm.months / 40));
-  const labels = [], interests = [], principals = [];
-  sTerm.hist.forEach((h, i) => {
-    if (i % step === 0) { labels.push(h.m); interests.push(Math.round(h.interest)); principals.push(Math.round(h.principal)); }
+/* ================================================================
+   PAGE 2: DOWN PAYMENT
+   ================================================================ */
+function getP2() {
+  const prop = parseFloat(document.getElementById('p2_property').value.replace(/\s/g, '')) || 0;
+  const down = parseFloat(document.getElementById('p2_down').value.replace(/\s/g, '')) || 0;
+  const rA = (parseFloat(document.getElementById('p2_rate').value.replace(',', '.')) || 0) / 100;
+  const N = parseInt(document.getElementById('p2_payments').value) || 1;
+  return { prop, down, rA, N };
+}
+
+function renderP2() {
+  const { prop, down, rA, N } = getP2();
+  if (prop <= 0 || rA <= 0 || N <= 0) return;
+  document.getElementById('p2_yearsHint').textContent = (N / 12).toFixed(1) + ' ' + t('years');
+  const pct = prop > 0 ? ((down / prop) * 100).toFixed(1) : 0;
+  document.getElementById('p2_downPct').textContent = pct + '%';
+
+  const loan = Math.max(0, prop - down);
+  const yours = simBasic(loan, rA, N);
+  const mp = annuity(loan, rA, N);
+
+  // Compare scenarios: your down, 10%, 20%
+  const scenarios = [
+    { key: 'dp_your', down: down, color: cAccent },
+    { key: 'dp_10', down: prop * 0.10, color: cOrange },
+    { key: 'dp_20', down: prop * 0.20, color: cGreen }
+  ];
+  const sims = scenarios.map(s => {
+    const l = Math.max(0, prop - s.down);
+    const r = simBasic(l, rA, N);
+    return { ...s, loan: l, sim: r, mp: l > 0 ? annuity(l, rA, N) : 0 };
   });
-  charts.pay = new Chart(ctx, {
+
+  document.getElementById('p2_kpi').innerHTML = `
+    <div class="kpi"><div class="kpi-label">${t('kpi_loan')}</div><div class="kpi-val" style="color:var(--accent)">${fmt(loan)} PLN</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_pct')}</div><div class="kpi-val">${pct}%</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_monthly')}</div><div class="kpi-val">${fmt2(mp)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_total_int')}</div><div class="kpi-val red">${fmt(yours.totI)} PLN</div></div>`;
+
+  let cardsHtml = '';
+  sims.forEach((s, i) => {
+    const cls = i === 0 ? 'card alt' : 'card';
+    const dpPct = prop > 0 ? ((s.down / prop) * 100).toFixed(1) : 0;
+    cardsHtml += `
+    <div class="${cls}">
+      <div class="card-head"><span class="card-title">${t(s.key)} (${dpPct}%)</span>${i === 0 ? '<span class="badge accent">→</span>' : ''}</div>
+      <div class="stat"><div class="stat-label">${t('dp_loan')}</div><div class="stat-value">${fmt(s.loan)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('dp_payment')}</div><div class="stat-value">${fmt2(s.mp)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('dp_total_int')}</div><div class="stat-value red">${fmt(s.sim.totI)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('dp_total_paid')}</div><div class="stat-value">${fmt(s.sim.totP)} PLN</div></div>
+    </div>`;
+  });
+  document.getElementById('p2_cards').innerHTML = cardsHtml;
+
+  // Charts
+  const maxM = N;
+  const step = Math.max(1, Math.floor(maxM / 120));
+
+  // Balance chart
+  destroyChart('p2b');
+  const lbels = [];
+  const datasets_b = [];
+  for (let i = 0; i <= maxM; i += step) lbels.push(i);
+  sims.forEach(s => {
+    const d = lbels.map(i => s.sim.hist[i]?.bal ?? 0);
+    const dpPct = prop > 0 ? ((s.down / prop) * 100).toFixed(0) : 0;
+    datasets_b.push(lineDS(t(s.key) + ' (' + dpPct + '%)', d, s.color, 2));
+  });
+  charts.p2b = new Chart(document.getElementById('p2_chartBal'), {
+    type: 'line', data: { labels: lbels, datasets: datasets_b }, options: baseChartOpts(t('ch_dp_bal'))
+  });
+
+  // Interest chart
+  destroyChart('p2i');
+  const datasets_i = [];
+  sims.forEach(s => {
+    const d = []; let cum = 0;
+    for (let i = 0; i < maxM; i++) {
+      if (i < s.sim.hist.length) cum += s.sim.hist[i].interest;
+      if (i % step === 0) d.push(Math.round(cum));
+    }
+    const dpPct = prop > 0 ? ((s.down / prop) * 100).toFixed(0) : 0;
+    datasets_i.push(lineDS(t(s.key) + ' (' + dpPct + '%)', d, s.color, 2));
+  });
+  const liInt = []; for (let i = 0; i < maxM; i += step) liInt.push(i);
+  charts.p2i = new Chart(document.getElementById('p2_chartInt'), {
+    type: 'line', data: { labels: liInt, datasets: datasets_i }, options: baseChartOpts(t('ch_dp_int'))
+  });
+
+  // Payment bar chart (monthly payment for each scenario)
+  destroyChart('p2p');
+  const payLabels = sims.map(s => { const p = prop > 0 ? ((s.down / prop) * 100).toFixed(0) : 0; return t(s.key) + ' (' + p + '%)'; });
+  const payData = sims.map(s => Math.round(s.mp));
+  const payColors = sims.map(s => s.color);
+  charts.p2p = new Chart(document.getElementById('p2_chartPay'), {
     type: 'bar',
-    data: { labels, datasets: [
-      { label: t('ch_interest'), data: interests, backgroundColor: 'rgba(248,113,113,0.7)', borderRadius: 2 },
-      { label: t('ch_principal'), data: principals, backgroundColor: 'rgba(74,222,128,0.7)', borderRadius: 2 }
+    data: { labels: payLabels, datasets: [{ label: t('dp_payment'), data: payData, backgroundColor: payColors.map(c => c + 'b3'), borderColor: payColors, borderWidth: 2, borderRadius: 6 }] },
+    options: { ...baseChartOpts('PLN', ''), scales: { ...baseChartOpts('PLN', '').scales, x: { ...baseChartOpts('PLN', '').scales.x, title: { display: false } } } }
+  });
+}
+
+/* ================================================================
+   PAGE 3: REFINANCING
+   ================================================================ */
+function getP3() {
+  const P = parseFloat(document.getElementById('p3_principal').value.replace(/\s/g, '')) || 0;
+  const r1 = (parseFloat(document.getElementById('p3_rate1').value.replace(',', '.')) || 0) / 100;
+  const r2 = (parseFloat(document.getElementById('p3_rate2').value.replace(',', '.')) || 0) / 100;
+  const n1 = parseInt(document.getElementById('p3_pay1').value) || 1;
+  const n2 = parseInt(document.getElementById('p3_pay2').value) || 1;
+  return { P, r1, r2, n1, n2 };
+}
+
+function renderP3() {
+  const { P, r1, r2, n1, n2 } = getP3();
+  if (P <= 0 || r1 <= 0 || r2 <= 0 || n1 <= 0 || n2 <= 0) return;
+  document.getElementById('p3_years1').textContent = (n1 / 12).toFixed(1) + ' ' + t('years');
+  document.getElementById('p3_years2').textContent = (n2 / 12).toFixed(1) + ' ' + t('years');
+
+  const s1 = simBasic(P, r1, n1), s2 = simBasic(P, r2, n2);
+  const mp1 = annuity(P, r1, n1), mp2 = annuity(P, r2, n2);
+  const diffMo = mp1 - mp2, diffInt = s1.totI - s2.totI, diffTot = s1.totP - s2.totP;
+  const better = diffInt > 0 ? 2 : 1;
+
+  document.getElementById('p3_kpi').innerHTML = `
+    <div class="kpi"><div class="kpi-label">${t('kpi_pay1')}</div><div class="kpi-val">${fmt2(mp1)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_pay2')}</div><div class="kpi-val">${fmt2(mp2)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_save_int')}</div><div class="kpi-val green">${fmt(Math.abs(diffInt))} PLN</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpi_save_mo')}</div><div class="kpi-val" style="color:var(--accent)">${fmt(Math.abs(Math.round(diffMo)))} PLN</div></div>`;
+
+  const c1cls = better === 1 ? 'card best' : 'card';
+  const c2cls = better === 2 ? 'card best' : 'card';
+  const b1 = better === 1 ? `<span class="badge green">${t('rf_better')}</span>` : `<span class="badge orange">${t('rf_worse')}</span>`;
+  const b2 = better === 2 ? `<span class="badge green">${t('rf_better')}</span>` : `<span class="badge orange">${t('rf_worse')}</span>`;
+
+  document.getElementById('p3_cards').innerHTML = `
+    <div class="${c1cls}">
+      <div class="card-head"><span class="card-title">${t('rf_loan1')}</span>${b1}</div>
+      <div class="stat"><div class="stat-label">${t('rf_monthly')}</div><div class="stat-value">${fmt2(mp1)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_total_int')}</div><div class="stat-value ${better===1?'green':'red'}">${fmt(s1.totI)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_total_paid')}</div><div class="stat-value">${fmt(s1.totP)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_term')}</div><div class="stat-value">${n1} ${t('mo')} (${(n1/12).toFixed(1)} ${t('yr')})</div></div>
+    </div>
+    <div class="${c2cls}">
+      <div class="card-head"><span class="card-title">${t('rf_loan2')}</span>${b2}</div>
+      <div class="stat"><div class="stat-label">${t('rf_monthly')}</div><div class="stat-value">${fmt2(mp2)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_total_int')}</div><div class="stat-value ${better===2?'green':'red'}">${fmt(s2.totI)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_total_paid')}</div><div class="stat-value">${fmt(s2.totP)} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_term')}</div><div class="stat-value">${n2} ${t('mo')} (${(n2/12).toFixed(1)} ${t('yr')})</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">${t('rf_diff')}</span></div>
+      <div class="stat"><div class="stat-label">${t('rf_save_monthly')}</div><div class="stat-value green">${fmt(Math.abs(Math.round(diffMo)))} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_save_int')}</div><div class="stat-value green">${fmt(Math.abs(diffInt))} PLN</div></div>
+      <div class="stat"><div class="stat-label">${t('rf_save_total')}</div><div class="stat-value green">${fmt(Math.abs(diffTot))} PLN</div></div>
+    </div>`;
+
+  // Charts
+  const maxM = Math.max(n1, n2);
+  const step = Math.max(1, Math.floor(maxM / 120));
+
+  // Balance
+  destroyChart('p3b');
+  const lb = [], d1 = [], d2 = [];
+  for (let i = 0; i <= maxM; i += step) { lb.push(i); d1.push(s1.hist[i]?.bal ?? 0); d2.push(s2.hist[i]?.bal ?? 0); }
+  charts.p3b = new Chart(document.getElementById('p3_chartBal'), {
+    type: 'line', data: { labels: lb, datasets: [lineDS(t('ch_loan1'), d1, cRed, 2), lineDS(t('ch_loan2'), d2, cGreen, 2.5)] },
+    options: baseChartOpts(t('ch_balance'))
+  });
+
+  // Interest
+  destroyChart('p3i');
+  const li = [], di1 = [], di2 = [];
+  let c1 = 0, c2 = 0;
+  for (let i = 0; i < maxM; i++) {
+    if (i < s1.hist.length) c1 += s1.hist[i].interest;
+    if (i < s2.hist.length) c2 += s2.hist[i].interest;
+    if (i % step === 0) { li.push(i); di1.push(Math.round(c1)); di2.push(Math.round(c2)); }
+  }
+  charts.p3i = new Chart(document.getElementById('p3_chartInt'), {
+    type: 'line', data: { labels: li, datasets: [lineDS(t('ch_loan1'), di1, cRed, 2), lineDS(t('ch_loan2'), di2, cGreen, 2.5)] },
+    options: baseChartOpts(t('ch_cum_int'))
+  });
+
+  // Payment structure — grouped stacked bars side by side
+  destroyChart('p3p');
+  const stp = Math.max(1, Math.floor(maxM / 25));
+  const lp = [], int1 = [], pr1 = [], int2 = [], pr2 = [];
+  for (let i = 0; i < maxM; i += stp) {
+    lp.push(i + 1);
+    const h1 = s1.hist[i] || { interest: 0, principal: 0 };
+    const h2 = s2.hist[i] || { interest: 0, principal: 0 };
+    int1.push(Math.round(h1.interest)); pr1.push(Math.round(h1.principal));
+    int2.push(Math.round(h2.interest)); pr2.push(Math.round(h2.principal));
+  }
+  charts.p3p = new Chart(document.getElementById('p3_chartPay'), {
+    type: 'bar',
+    data: { labels: lp, datasets: [
+      { label: t('ch_loan1') + ' — ' + t('ch_interest'), data: int1, backgroundColor: 'rgba(248,113,113,0.7)', borderRadius: 2, stack: 'loan1' },
+      { label: t('ch_loan1') + ' — ' + t('ch_principal'), data: pr1, backgroundColor: 'rgba(248,113,113,0.3)', borderRadius: 2, stack: 'loan1' },
+      { label: t('ch_loan2') + ' — ' + t('ch_interest'), data: int2, backgroundColor: 'rgba(74,222,128,0.7)', borderRadius: 2, stack: 'loan2' },
+      { label: t('ch_loan2') + ' — ' + t('ch_principal'), data: pr2, backgroundColor: 'rgba(74,222,128,0.3)', borderRadius: 2, stack: 'loan2' }
     ]},
     options: {
-      ...chartOpts('PLN'),
+      ...baseChartOpts('PLN'),
       scales: {
-        x: { ...chartOpts('PLN').scales.x, stacked: true },
-        y: { ...chartOpts('PLN').scales.y, stacked: true }
+        x: { ...baseChartOpts('PLN').scales.x, stacked: true },
+        y: { ...baseChartOpts('PLN').scales.y, stacked: true }
       }
     }
   });
 }
 
-/* =========== EVENTS =========== */
-let debounceTimer;
-function onInput() { clearTimeout(debounceTimer); debounceTimer = setTimeout(render, 200); }
+/* ================================================================
+   EVENTS
+   ================================================================ */
+let debounce;
+function onInput() { clearTimeout(debounce); debounce = setTimeout(renderCurrent, 200); }
 
-document.getElementById('inPrincipal').addEventListener('input', onInput);
-document.getElementById('inRate').addEventListener('input', onInput);
-document.getElementById('inPayments').addEventListener('input', onInput);
-document.getElementById('inExtra').addEventListener('input', function () {
+// Lang buttons
+document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+// Page tabs
+document.querySelectorAll('.page-tab').forEach(b => b.addEventListener('click', () => setPage(b.dataset.page)));
+
+// P1 inputs
+['p1_principal', 'p1_rate', 'p1_payments'].forEach(id => document.getElementById(id).addEventListener('input', onInput));
+document.getElementById('p1_extra').addEventListener('input', function () {
   document.querySelectorAll('.extra-btn').forEach(b => b.classList.remove('active'));
-  if ([500, 1000, 1500, 2000].includes(parseInt(this.value))) {
+  if ([500, 1000, 1500, 2000].includes(parseInt(this.value)))
     document.querySelector(`.extra-btn[data-val="${parseInt(this.value)}"]`)?.classList.add('active');
-  }
   onInput();
 });
-
 document.querySelectorAll('.extra-btn').forEach(btn => {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.extra-btn').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
-    document.getElementById('inExtra').value = this.dataset.val;
+    document.getElementById('p1_extra').value = this.dataset.val;
     onInput();
   });
 });
 
-/* =========== INIT =========== */
-applyLabels();
-render();
+// P2 inputs
+['p2_property', 'p2_down', 'p2_rate', 'p2_payments'].forEach(id => document.getElementById(id).addEventListener('input', onInput));
+
+// P3 inputs
+['p3_principal', 'p3_rate1', 'p3_rate2', 'p3_pay1', 'p3_pay2'].forEach(id => document.getElementById(id).addEventListener('input', onInput));
+
+/* ================================================================
+   INIT
+   ================================================================ */
+applyAllLabels();
+renderP2();
 </script>
 </body>
 </html>
